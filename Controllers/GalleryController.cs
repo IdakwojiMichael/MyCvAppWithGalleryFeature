@@ -36,9 +36,7 @@ namespace MyCvApp.Controllers
                 }
             }
             return RedirectToAction("ViewGallery");
-        }
-
-        // Displays all uploaded images
+        }  
         public IActionResult ViewGallery()
         {
             var fullPath = Path.Combine(Directory.GetCurrentDirectory(), _imagePath);
