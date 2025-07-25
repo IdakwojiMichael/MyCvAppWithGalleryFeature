@@ -1,0 +1,17 @@
+@{
+    ViewData["Title"] = "Tax Calculator";
+}
+
+<h1>Tax Calculator (Nigeria)</h1>
+
+<form method="post">
+    <label for="income">Enter your annual income (NGN):</label>
+    <input type="number" name="income" required />
+    <button type="submit">Calculate</button>
+</form>
+
+@if (ViewBag.Tax != null)
+{
+    <p>Your income: <strong>₦@ViewBag.Income</strong></p>
+    <p>Estimated tax: <strong>₦@ViewBag.Tax</strong></p>
+}

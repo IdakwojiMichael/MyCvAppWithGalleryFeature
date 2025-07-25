@@ -1,0 +1,17 @@
+
+@{
+    ViewData["Title"] = "Gallery";
+    var images = ViewBag.Images as List<string>;
+}
+
+<h2>Image Gallery</h2>
+
+<div style="display: flex; flex-wrap: wrap;">
+@foreach (var img in images)
+{
+    <div style="margin: 10px;">
+        <img src="/images/@img" width="200" style="border: 1px solid #ccc;" />
+    </div>
+}
+</div>
+<a href="/Gallery/Upload">Upload Another Image</a>
