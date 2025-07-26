@@ -3,7 +3,7 @@ name: Build and Deploy to Azure
 on:
   push:
     branches:
-      - master  # or 'main' if your branch is main
+      - master
 
 jobs:
   build-and-deploy:
@@ -24,17 +24,17 @@ jobs:
           find . -name "*.sln"
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore MyCvAppWithGalleryFeatures.sln
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build MyCvAppWithGalleryFeatures.sln --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish --configuration Release --output ./output
+        run: dotnet publish MyCvAppWithGalleryFeatures.sln --configuration Release --output ./output
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: AppwithCVandGallery  # ✅ This is your Azure App name
+          app-name: AppwithCVandGallery
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: ./output
