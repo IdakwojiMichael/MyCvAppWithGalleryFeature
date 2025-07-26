@@ -56,3 +56,5 @@ namespace MyCvApp.Controllers
         }
     }
 }
+
+// Trigger GitHub Actions deployment
