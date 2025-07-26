@@ -1,4 +1,4 @@
-name: build-and-deploy
+name: Build and Deploy .NET App to Azure Web App
 
 on:
   push:
@@ -17,23 +17,25 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: '8.0.x'
 
-      - name: Verify files
-        run: dir
+      - name: Find solution file
+        run: |
+          echo "Listing all solution files:"
+          dir *.sln /s /b
 
       - name: Restore dependencies
-        run: dotnet restore MyCvAppWithGalleryFeatures.sln
+        run: dotnet restore ./MyCvAppWithGalleryFeatures.sln
 
       - name: Build
-        run: dotnet build MyCvAppWithGalleryFeatures.sln --configuration Release --no-restore
+        run: dotnet build ./MyCvAppWithGalleryFeatures.sln --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish MyCvAppWithGalleryFeatures.sln --configuration Release --output ./output --no-restore
+        run: dotnet publish ./MyCvAppWithGalleryFeatures.sln --configuration Release --output ./publish --no-build
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: AppwithCVandGallery
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: ./output
+          package: ./publish
