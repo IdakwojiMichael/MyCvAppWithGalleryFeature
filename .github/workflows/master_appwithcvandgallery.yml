@@ -21,28 +21,28 @@ jobs:
 
     - name: Find the solution file
       id: find-sln
+      shell: pwsh
       run: |
-        $sln = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Filter "MyCvAppWithGalleryFeatures.sln" | Select-Object -First 1
-        if (-not $sln) {
-          Write-Error "Solution file not found"
-          exit 1
+        $sln = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Filter *.sln | Select-Object -First 1
+        if (-not $sln) { 
+          Write-Error "❌ Solution file not found!"
+          exit 1 
         }
-        echo "Found solution at: $($sln.FullName)"
+        echo "✅ Found solution file: $($sln.FullName)"
         echo "sln-path=$($sln.FullName)" >> $env:GITHUB_ENV
-        echo "sln-dir=$($sln.DirectoryName)" >> $env:GITHUB_ENV
 
     - name: Restore dependencies
-      run: dotnet restore "$sln-path"
+      run: dotnet restore "$env:sln-path"
 
     - name: Build
-      run: dotnet build "$sln-path" --no-restore
+      run: dotnet build "$env:sln-path" --no-restore
 
     - name: Publish
-      run: dotnet publish "$sln-path" --configuration Release --output ./publish_output
+      run: dotnet publish "$env:sln-path" --configuration Release --output ./publish_output
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'AppwithCVandGallery'
+        app-name: 'AppwithCVandGallery'  # Replace with your Azure App name
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
         package: ./publish_output
