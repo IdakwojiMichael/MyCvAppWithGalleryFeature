@@ -19,18 +19,18 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore MyCvAppWithGalleryFeature.sln
+        run: dotnet restore MyCvAppWithGalleryFeatures.sln
 
       - name: Build
-        run: dotnet build MyCvAppWithGalleryFeature.sln --configuration Release --no-restore
+        run: dotnet build MyCvAppWithGalleryFeatures.sln --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish MyCvAppWithGalleryFeature.sln --configuration Release --output ./output --no-restore
+        run: dotnet publish MyCvAppWithGalleryFeatures.sln --configuration Release --output ./output --no-restore
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'AppwithCVandGallery'  # ✅ Your real Azure Web App name
+          app-name: 'AppwithCVandGallery'  # ✅ This is your real Azure App Service name
           slot-name: 'production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: ./output
