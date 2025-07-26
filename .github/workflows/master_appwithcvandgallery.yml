@@ -1,9 +1,9 @@
-name: Build and Deploy .NET App to Azure Web App
+name: build-and-deploy
 
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 jobs:
@@ -12,30 +12,37 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.x'
 
       - name: Find solution file
+        id: find-sln
         run: |
-          echo "Listing all solution files:"
-          dir *.sln /s /b
+          echo "Looking for .sln file..."
+          $slnFile = Get-ChildItem -Recurse -Filter *.sln | Select-Object -First 1
+          if (!$slnFile) {
+            Write-Error "No solution file (*.sln) found in the repository."
+            exit 1
+          }
+          echo "Found solution: $($slnFile.FullName)"
+          echo "sln-path=$($slnFile.FullName)" >> $env:GITHUB_OUTPUT
 
       - name: Restore dependencies
-        run: dotnet restore ./MyCvAppWithGalleryFeatures.sln
+        run: dotnet restore "${{ steps.find-sln.outputs.sln-path }}"
 
       - name: Build
-        run: dotnet build ./MyCvAppWithGalleryFeatures.sln --configuration Release --no-restore
+        run: dotnet build "${{ steps.find-sln.outputs.sln-path }}" --no-restore --configuration Release
 
       - name: Publish
-        run: dotnet publish ./MyCvAppWithGalleryFeatures.sln --configuration Release --output ./publish --no-build
+        run: dotnet publish "${{ steps.find-sln.outputs.sln-path }}" --no-build --configuration Release --output ./publish
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: AppwithCVandGallery
+          app-name: 'AppwithCVandGallery'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
           package: ./publish
