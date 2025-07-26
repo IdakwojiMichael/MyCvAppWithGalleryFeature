@@ -3,7 +3,7 @@ name: build-and-deploy
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 jobs:
@@ -11,38 +11,26 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
 
-      - name: Find solution file
-        id: find-sln
-        run: |
-          echo "Looking for .sln file..."
-          $slnFile = Get-ChildItem -Recurse -Filter *.sln | Select-Object -First 1
-          if (!$slnFile) {
-            Write-Error "No solution file (*.sln) found in the repository."
-            exit 1
-          }
-          echo "Found solution: $($slnFile.FullName)"
-          echo "sln-path=$($slnFile.FullName)" >> $env:GITHUB_OUTPUT
+    - name: Restore dependencies
+      run: dotnet restore
 
-      - name: Restore dependencies
-        run: dotnet restore "${{ steps.find-sln.outputs.sln-path }}"
+    - name: Build
+      run: dotnet build --no-restore
 
-      - name: Build
-        run: dotnet build "${{ steps.find-sln.outputs.sln-path }}" --no-restore --configuration Release
+    - name: Publish
+      run: dotnet publish --configuration Release --output ./publish_output
 
-      - name: Publish
-        run: dotnet publish "${{ steps.find-sln.outputs.sln-path }}" --no-build --configuration Release --output ./publish
-
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'AppwithCVandGallery'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: ./publish
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'AppwithCVandGallery'  # This is your Azure App Service name
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+        package: ./publish_output
