@@ -19,14 +19,26 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Find the solution file
+      id: find-sln
+      run: |
+        $sln = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Filter "MyCvAppWithGalleryFeatures.sln" | Select-Object -First 1
+        if (-not $sln) {
+          Write-Error "Solution file not found"
+          exit 1
+        }
+        echo "Found solution at: $($sln.FullName)"
+        echo "sln-path=$($sln.FullName)" >> $env:GITHUB_ENV
+        echo "sln-dir=$($sln.DirectoryName)" >> $env:GITHUB_ENV
+
     - name: Restore dependencies
-      run: dotnet restore MyCvAppWithGalleryFeatures.sln
+      run: dotnet restore "$sln-path"
 
     - name: Build
-      run: dotnet build MyCvAppWithGalleryFeatures.sln --no-restore
+      run: dotnet build "$sln-path" --no-restore
 
     - name: Publish
-      run: dotnet publish MyCvAppWithGalleryFeatures.sln --configuration Release --output ./publish_output
+      run: dotnet publish "$sln-path" --configuration Release --output ./publish_output
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
