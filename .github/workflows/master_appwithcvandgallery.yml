@@ -20,13 +20,13 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore MyCvAppWithGalleryFeature.sln
+      run: dotnet restore MyCvAppWithGalleryFeatures.sln
 
     - name: Build
-      run: dotnet build MyCvAppWithGalleryFeature.sln --no-restore
+      run: dotnet build MyCvAppWithGalleryFeatures.sln --no-restore
 
     - name: Publish
-      run: dotnet publish MyCvAppWithGalleryFeature.sln --configuration Release --output ./publish_output
+      run: dotnet publish MyCvAppWithGalleryFeatures.sln --configuration Release --output ./publish_output
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
