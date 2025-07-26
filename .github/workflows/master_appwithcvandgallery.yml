@@ -28,21 +28,20 @@ jobs:
           Write-Error "❌ Solution file not found!"
           exit 1 
         }
-        echo "✅ Found solution file: $($sln.FullName)"
-        echo "sln-path=$($sln.FullName)" >> $env:GITHUB_ENV
+        echo "sln_path=$($sln.FullName)" >> $env:GITHUB_ENV
 
     - name: Restore dependencies
-      run: dotnet restore "$env:sln-path"
+      run: dotnet restore "${{ env.sln_path }}"
 
     - name: Build
-      run: dotnet build "$env:sln-path" --no-restore
+      run: dotnet build "${{ env.sln_path }}" --no-restore
 
     - name: Publish
-      run: dotnet publish "$env:sln-path" --configuration Release --output ./publish_output
+      run: dotnet publish "${{ env.sln_path }}" --configuration Release --output ./publish_output
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'AppwithCVandGallery'  # Replace with your Azure App name
+        app-name: 'AppwithCVandGallery'  # Change if needed
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
         package: ./publish_output
